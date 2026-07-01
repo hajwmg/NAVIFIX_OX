@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="NAVIFIX QUIZ">
+    <title>NAVIFIX OX Quiz</title>
+    <style>
+        :root {
+            --accent: #ff6b1a;
+            --accent-dark: #c94b0c;
+            --ink: #151923;
+            --ink-soft: #313946;
+            --muted: #717b89;
+            --line: #dfe5ec;
+            --line-strong: #c7d0da;
+            --page: #f4f7fa;
+            --panel: #ffffff;
+            --panel-soft: #f8fafc;
+            --success: #168457;
+            --success-bg: #e7f6ee;
+            --danger: #c93d3d;
+            --danger-bg: #fdeaea;
+            --shadow: 0 18px 42px rgba(21, 25, 35, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(244, 247, 250, 0.92)),
+                repeating-linear-gradient(90deg, rgba(21, 25, 35, 0.035) 0 1px, transparent 1px 44px),
+                var(--page);
+            font-family: "Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        button {
+            border: 0;
+            font-family: inherit;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .app {
+            width: 100%;
+            height: 100dvh;
+            padding: 18px;
+            display: grid;
+            grid-template-rows: 72px minmax(0, 1fr);
+            gap: 14px;
+        }
+
+        .shell {
+            width: min(100%, 1380px);
+            margin: 0 auto;
+        }
+
+        .topbar {
+            height: 72px;
+            display: grid;
+            grid-template-columns: minmax(280px, 0.85fr) minmax(360px, 1.1fr) auto;
+            align-items: center;
+            gap: 24px;
+            padding: 0 18px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow: 0 12px 26px rgba(21, 25, 35, 0.08);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .brand-mark {
+            width: 46px;
+            height: 46px;
+            border-radius: 8px;
+            background:
+                linear-gradient(90deg, var(--accent) 0 6px, transparent 6px 13px),
+                linear-gradient(0deg, rgba(21, 25, 35, 0.16) 0 1px, transparent 1px 9px),
+                #ffffff;
+            border: 1px solid var(--line-strong);
+            box-shadow: inset 6px 0 0 var(--accent);
+            flex: 0 0 auto;
+        }
+
+        .brand-title {
+            margin: 0;
+            font-size: 1.85rem;
+            line-height: 1;
+            font-weight: 1000;
+            letter-spacing: 0;
+        }
+
+        .brand-subtitle {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: 0.9rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+        }
+
+        .progress-block {
+            min-width: 0;
+        }
+
+        .progress-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 16px;
+            margin-bottom: 8px;
+            color: var(--ink-soft);
+            font-size: 0.98rem;
+            font-weight: 950;
+        }
+
+        .progress-meta strong {
+            color: var(--accent-dark);
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 10px;
+            border-radius: 999px;
+            background: #e7ecf2;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 20%;
+            height: 100%;
+            border-radius: inherit;
+            background: var(--accent);
+            transition: width 220ms ease;
+        }
+
+        .top-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .utility-btn {
+            min-width: 94px;
+            min-height: 44px;
+            padding: 0 14px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #ffffff;
+            color: var(--ink-soft);
+            font-size: 0.94rem;
+            font-weight: 950;
+            cursor: pointer;
+        }
+
+        .utility-btn:active {
+            transform: translateY(1px);
+        }
+
+        .stage {
+            width: min(100%, 1380px);
+            min-height: 0;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: minmax(0, 1.08fr) minmax(420px, 0.92fr);
+            gap: 14px;
+        }
+
+        .question-panel,
+        .answer-panel,
+        .result-panel {
+            min-height: 0;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--panel);
+            box-shadow: var(--shadow);
+        }
+
+        .question-panel {
+            position: relative;
+            overflow: hidden;
+            padding: 30px;
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr) auto;
+            gap: 18px;
+        }
+
+        .question-panel::after {
+            content: "";
+            position: absolute;
+            right: -70px;
+            bottom: -90px;
+            width: 310px;
+            height: 310px;
+            opacity: 0.08;
+            background:
+                repeating-linear-gradient(45deg, var(--ink) 0 2px, transparent 2px 18px),
+                repeating-linear-gradient(-45deg, var(--ink) 0 2px, transparent 2px 18px);
+            pointer-events: none;
+        }
+
+        .question-head {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 34px;
+            padding: 0 12px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: #ffffff;
+            color: var(--muted);
+            font-size: 0.9rem;
+            font-weight: 950;
+            letter-spacing: 0.04em;
+        }
+
+        .eyebrow::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .q-badge {
+            flex: 0 0 auto;
+            min-width: 72px;
+            min-height: 44px;
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            color: #ffffff;
+            background: var(--ink);
+            font-size: 1.12rem;
+            font-weight: 1000;
+        }
+
+        .question-text {
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            color: var(--ink);
+            font-size: clamp(2rem, 3vw, 3.2rem);
+            line-height: 1.2;
+            font-weight: 1000;
+            letter-spacing: 0;
+            word-break: keep-all;
+            overflow-wrap: anywhere;
+        }
+
+        .hint-row {
+            position: relative;
+            z-index: 1;
+            min-height: 86px;
+            display: grid;
+            grid-template-columns: 116px minmax(0, 1fr);
+            gap: 12px;
+        }
+
+        .hint-btn {
+            border-radius: 8px;
+            background: var(--ink);
+            color: #ffffff;
+            font-size: 1.04rem;
+            font-weight: 1000;
+            cursor: pointer;
+        }
+
+        .hint-btn:disabled {
+            opacity: 0.46;
+            cursor: default;
+        }
+
+        .hint-text {
+            min-height: 86px;
+            border: 1px solid var(--line);
+            border-left: 4px solid var(--accent);
+            border-radius: 8px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            background: var(--panel-soft);
+            color: var(--ink-soft);
+            font-size: 1.08rem;
+            line-height: 1.42;
+            font-weight: 850;
+            word-break: keep-all;
+            overflow-wrap: anywhere;
+            opacity: 0;
+            transform: translateY(5px);
+            transition: opacity 160ms ease, transform 160ms ease;
+        }
+
+        .hint-text.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .answer-panel {
+            padding: 18px;
+            display: grid;
+            grid-template-rows: minmax(178px, 0.9fr) minmax(190px, 1fr) auto;
+            gap: 12px;
+        }
+
+        .choice-grid {
+            min-height: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .choice-btn {
+            position: relative;
+            border: 1px solid var(--line-strong);
+            border-radius: 8px;
+            background: #ffffff;
+            color: var(--ink);
+            cursor: pointer;
+            box-shadow: 0 10px 22px rgba(21, 25, 35, 0.08);
+            transition: transform 90ms ease, border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+        }
+
+        .choice-btn:active {
+            transform: scale(0.985);
+        }
+
+        .choice-btn[disabled] {
+            cursor: default;
+        }
+
+        .choice-letter {
+            display: block;
+            font-size: clamp(5rem, 8vw, 7.4rem);
+            line-height: 0.86;
+            font-weight: 1000;
+        }
+
+        .choice-label {
+            display: block;
+            margin-top: 12px;
+            color: var(--muted);
+            font-size: 1.08rem;
+            font-weight: 950;
+        }
+
+        .choice-btn.correct {
+            border-color: var(--success);
+            background: var(--success);
+            color: #ffffff;
+        }
+
+        .choice-btn.wrong {
+            border-color: var(--danger);
+            background: var(--danger);
+            color: #ffffff;
+        }
+
+        .choice-btn.reveal {
+            border-color: var(--success);
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .choice-btn.correct .choice-label,
+        .choice-btn.wrong .choice-label {
+            color: rgba(255, 255, 255, 0.88);
+        }
+
+        .choice-btn.reveal .choice-label {
+            color: var(--success);
+        }
+
+        .feedback {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--panel-soft);
+            padding: 22px;
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr);
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .feedback.correct {
+            border-color: rgba(22, 132, 87, 0.35);
+            background: var(--success-bg);
+        }
+
+        .feedback.wrong {
+            border-color: rgba(201, 61, 61, 0.28);
+            background: var(--danger-bg);
+        }
+
+        .feedback-title {
+            color: var(--ink);
+            font-size: 1.54rem;
+            line-height: 1.14;
+            font-weight: 1000;
+        }
+
+        .feedback-copy {
+            margin: 0;
+            color: var(--ink-soft);
+            font-size: 1.2rem;
+            line-height: 1.48;
+            font-weight: 850;
+            word-break: keep-all;
+            overflow-wrap: anywhere;
+        }
+
+        .next-btn {
+            min-height: 72px;
+            border-radius: 8px;
+            background: var(--accent);
+            color: #ffffff;
+            font-size: 1.42rem;
+            font-weight: 1000;
+            cursor: pointer;
+            box-shadow: 0 12px 24px rgba(255, 107, 26, 0.24);
+        }
+
+        .next-btn:disabled {
+            color: #8a95a3;
+            background: #dfe5ec;
+            box-shadow: none;
+            cursor: default;
+        }
+
+        .result-panel {
+            display: none;
+            width: min(100%, 1380px);
+            margin: 0 auto;
+            padding: 34px;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .result-panel.is-active {
+            display: flex;
+        }
+
+        .result-content {
+            width: min(720px, 100%);
+        }
+
+        .result-title {
+            margin: 0;
+            color: var(--ink);
+            font-size: 3rem;
+            font-weight: 1000;
+            letter-spacing: 0;
+        }
+
+        .score-value {
+            margin: 18px 0 10px;
+            color: var(--accent-dark);
+            font-size: 7rem;
+            line-height: 1;
+            font-weight: 1000;
+        }
+
+        .result-comment {
+            min-height: 40px;
+            margin: 0 0 28px;
+            color: var(--ink-soft);
+            font-size: 1.6rem;
+            font-weight: 950;
+        }
+
+        .result-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .result-btn {
+            min-height: 72px;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1.3rem;
+            font-weight: 1000;
+            cursor: pointer;
+        }
+
+        .result-btn.primary {
+            background: var(--accent);
+        }
+
+        .result-btn.secondary {
+            background: var(--ink);
+        }
+
+        body.result-mode .stage {
+            display: none;
+        }
+
+        body.result-mode .progress-block {
+            opacity: 0.42;
+        }
+
+        @media (max-width: 1080px), (orientation: portrait) {
+            body {
+                overflow: auto;
+            }
+
+            .app {
+                height: auto;
+                min-height: 100svh;
+                grid-template-rows: auto auto;
+            }
+
+            .topbar {
+                height: auto;
+                grid-template-columns: 1fr;
+                gap: 14px;
+                padding: 14px;
+            }
+
+            .top-actions {
+                justify-content: stretch;
+            }
+
+            .utility-btn {
+                flex: 1 1 0;
+            }
+
+            .stage {
+                grid-template-columns: 1fr;
+            }
+
+            .question-text {
+                min-height: 240px;
+                font-size: 2rem;
+            }
+
+            .answer-panel {
+                grid-template-rows: 170px minmax(170px, auto) auto;
+            }
+        }
+
+        @media (max-height: 650px) and (orientation: landscape) {
+            .app {
+                padding: 10px;
+                grid-template-rows: 62px minmax(0, 1fr);
+                gap: 8px;
+            }
+
+            .topbar {
+                height: 62px;
+                grid-template-columns: minmax(240px, 0.8fr) minmax(300px, 1.1fr) auto;
+                gap: 14px;
+                padding: 0 10px;
+            }
+
+            .brand-mark {
+                width: 42px;
+                height: 42px;
+            }
+
+            .brand-title {
+                font-size: 1.58rem;
+            }
+
+            .brand-subtitle {
+                margin-top: 3px;
+                font-size: 0.78rem;
+            }
+
+            .utility-btn {
+                min-width: 84px;
+                min-height: 40px;
+                font-size: 0.9rem;
+            }
+
+            .stage {
+                grid-template-columns: minmax(0, 1.06fr) minmax(390px, 0.94fr);
+                gap: 8px;
+            }
+
+            .question-panel {
+                padding: 22px;
+                gap: 12px;
+            }
+
+            .eyebrow {
+                min-height: 32px;
+                font-size: 0.82rem;
+            }
+
+            .q-badge {
+                min-height: 40px;
+                min-width: 66px;
+                font-size: 1rem;
+            }
+
+            .question-text {
+                font-size: clamp(1.72rem, 2.9vw, 2.42rem);
+            }
+
+            .hint-row {
+                min-height: 74px;
+                grid-template-columns: 106px minmax(0, 1fr);
+            }
+
+            .hint-text {
+                min-height: 74px;
+                padding: 12px 14px;
+                font-size: 0.98rem;
+            }
+
+            .answer-panel {
+                padding: 14px;
+                grid-template-rows: 142px minmax(140px, 1fr) 58px;
+                gap: 10px;
+            }
+
+            .choice-letter {
+                font-size: 5rem;
+            }
+
+            .choice-label {
+                margin-top: 8px;
+                font-size: 0.96rem;
+            }
+
+            .feedback {
+                padding: 16px;
+                gap: 8px;
+            }
+
+            .feedback-title {
+                font-size: 1.3rem;
+            }
+
+            .feedback-copy {
+                font-size: 1.06rem;
+                line-height: 1.4;
+            }
+
+            .next-btn {
+                min-height: 58px;
+                font-size: 1.24rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="app">
+        <header class="topbar shell" aria-label="퀴즈 상태">
+            <section class="brand">
+                <div class="brand-mark" aria-hidden="true"></div>
+                <div>
+                    <h1 class="brand-title">NAVIFIX</h1>
+                    <p class="brand-subtitle">OX QUIZ</p>
+                </div>
+            </section>
+
+            <section class="progress-block">
+                <div class="progress-meta">
+                    <span>문제 <strong id="current-idx">1</strong> / <span id="total-count">5</span></span>
+                    <span>점수 <strong id="score-now">0</strong></span>
+                </div>
+                <div class="progress-track" aria-hidden="true">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </section>
+
+            <nav class="top-actions" aria-label="진행자 기능">
+                <button class="utility-btn" type="button" id="fullscreen-btn">전체화면</button>
+                <button class="utility-btn" type="button" id="reset-btn">처음부터</button>
+            </nav>
+        </header>
+
+        <section class="stage">
+            <article class="question-panel">
+                <div class="question-head">
+                    <div class="eyebrow">NAVIFIX CHECK</div>
+                    <div class="q-badge">Q<span id="question-badge">1</span></div>
+                </div>
+
+                <p class="question-text" id="question-text"></p>
+
+                <div class="hint-row">
+                    <button class="hint-btn" type="button" id="hint-btn">힌트</button>
+                    <div class="hint-text" id="hint-text" aria-live="polite"></div>
+                </div>
+            </article>
+
+            <aside class="answer-panel">
+                <section class="choice-grid" aria-label="정답 선택">
+                    <button class="choice-btn" type="button" id="btn-true" aria-label="O">
+                        <span class="choice-letter">O</span>
+                        <span class="choice-label">맞다</span>
+                    </button>
+                    <button class="choice-btn" type="button" id="btn-false" aria-label="X">
+                        <span class="choice-letter">X</span>
+                        <span class="choice-label">아니다</span>
+                    </button>
+                </section>
+
+                <section class="feedback" id="feedback" aria-live="polite">
+                    <div class="feedback-title" id="feedback-title">정답 선택</div>
+                    <p class="feedback-copy" id="feedback-copy">O 또는 X를 눌러주세요.</p>
+                </section>
+
+                <button class="next-btn" type="button" id="next-btn" disabled>다음 문제</button>
+            </aside>
+        </section>
+
+        <section class="result-panel" id="result-panel" aria-live="polite">
+            <div class="result-content">
+                <h2 class="result-title">퀴즈 완료</h2>
+                <div class="score-value"><span id="final-score">0</span> / <span id="final-total">5</span></div>
+                <p class="result-comment" id="result-comment"></p>
+                <div class="result-actions">
+                    <button class="result-btn primary" type="button" id="retry-btn">새 문제로 다시</button>
+                    <button class="result-btn secondary" type="button" id="same-btn">같은 문제 다시</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const TOTAL_QUESTIONS = 5;
+
+        const questionBank = [
+            {
+                q: "나비픽스는 그물망(Sheet) 구조로 제작되어 있어, 기존 부목과 달리 환부의 원활한 통풍이 가능하다?",
+                ans: true,
+                hint: "나비픽스만의 고유한 그물 디자인을 생각해보세요.",
+                exp: "나비픽스는 그물망 Sheet 형태로 설계되어 우수한 통풍성을 제공합니다."
+            },
+            {
+                q: "나비픽스는 1회 사용 후 다시 가열하여 다른 환자에게 재사용할 수 있는 의료기기이다?",
+                ans: false,
+                hint: "사용설명서에 명시된 일회용 여부를 확인해 보세요.",
+                exp: "나비픽스는 일회용 의료기기로 재사용이 엄격히 금지됩니다."
+            },
+            {
+                q: "나비픽스는 EDI 코드 BM2000MG를 부여받은 건강보험 비급여 제품이다?",
+                ans: true,
+                hint: "나비픽스는 환자가 전액 부담하는 항목입니다.",
+                exp: "나비픽스는 BM2000MG 코드를 가진 비급여 품목이 맞습니다."
+            },
+            {
+                q: "나비픽스의 주원료는 폴리카프로락톤(PCL)이며, 60~70℃ 온수에서 연화시켜 사용한다?",
+                ans: true,
+                hint: "PCL 소재의 특징과 성형 온도를 떠올려 보세요.",
+                exp: "열가소성 폴리카프로락톤 소재이며, 60~70℃ 온수에서 성형이 가능합니다."
+            },
+            {
+                q: "나비픽스는 한 박스(Box)당 총 10개의 멸균 개별 포장 제품이 들어있다?",
+                ans: true,
+                hint: "박스 패키지 측면에 적힌 판매 단위를 생각해보세요.",
+                exp: "위생적인 사용을 위해 멸균 개별 포장되어 있으며 10ea/box 단위로 판매됩니다."
+            },
+            {
+                q: "나비픽스를 온수(60~70℃)에 담갔을 때, 완전히 연화되는 권장 시간은 약 1분 이상이다?",
+                ans: false,
+                hint: "사용방법에 명시된 초(Second) 단위 시간을 생각해보세요.",
+                exp: "60~70℃ 온수에서 약 10~15초 정도면 성형하기 충분하게 연화됩니다."
+            },
+            {
+                q: "나비픽스의 유효기간은 제조년월로부터 3년이다?",
+                ans: true,
+                hint: "일반적인 멸균 의료기기의 유효기간을 생각해보세요.",
+                exp: "나비픽스의 공식 유효기간은 제조일로부터 3년입니다."
+            },
+            {
+                q: "나비픽스를 제거할 때는 전용 용해제가 필요 없으며 가위 등으로 제거가 가능하다?",
+                ans: true,
+                hint: "환자에게서 부목을 안전하게 떼어내는 도구를 생각해보세요.",
+                exp: "제거 시 가위 등을 사용하여 안전하게 절단 및 제거할 수 있습니다."
+            },
+            {
+                q: "파란색 나비픽스 제품에는 색상을 내기 위해 프탈로사이아나토 구리 성분이 포함되어 있다?",
+                ans: true,
+                hint: "원재료 중 피부 접촉이 가능한 미량의 색소 성분입니다.",
+                exp: "파란색 모델에는 자사 규격에 따른 프탈로사이아나토 구리가 함유되어 있습니다."
+            },
+            {
+                q: "나비픽스 모델 중 MS-7070은 가로와 세로 규격이 각각 70mm(±10%)인 정사각 모델이다?",
+                ans: true,
+                hint: "모델명 숫자가 뜻하는 크기를 생각해보세요.",
+                exp: "MS-7070은 가로 70mm, 세로 70mm 규격의 제품입니다."
+            }
+        ];
+
+        const els = {
+            body: document.body,
+            currentIdx: document.getElementById("current-idx"),
+            questionBadge: document.getElementById("question-badge"),
+            totalCount: document.getElementById("total-count"),
+            scoreNow: document.getElementById("score-now"),
+            progressFill: document.getElementById("progress-fill"),
+            questionText: document.getElementById("question-text"),
+            hintBtn: document.getElementById("hint-btn"),
+            hintText: document.getElementById("hint-text"),
+            btnTrue: document.getElementById("btn-true"),
+            btnFalse: document.getElementById("btn-false"),
+            feedback: document.getElementById("feedback"),
+            feedbackTitle: document.getElementById("feedback-title"),
+            feedbackCopy: document.getElementById("feedback-copy"),
+            nextBtn: document.getElementById("next-btn"),
+            fullscreenBtn: document.getElementById("fullscreen-btn"),
+            resetBtn: document.getElementById("reset-btn"),
+            resultPanel: document.getElementById("result-panel"),
+            finalScore: document.getElementById("final-score"),
+            finalTotal: document.getElementById("final-total"),
+            resultComment: document.getElementById("result-comment"),
+            retryBtn: document.getElementById("retry-btn"),
+            sameBtn: document.getElementById("same-btn")
+        };
+
+        let currentQuestions = [];
+        let currentIdx = 0;
+        let score = 0;
+        let answered = false;
+
+        function shuffle(items) {
+            return [...items].sort(() => Math.random() - 0.5);
+        }
+
+        function startQuiz(keepQuestions = false) {
+            if (!keepQuestions || currentQuestions.length === 0) {
+                currentQuestions = shuffle(questionBank).slice(0, TOTAL_QUESTIONS);
+            }
+
+            currentIdx = 0;
+            score = 0;
+            answered = false;
+            els.totalCount.textContent = currentQuestions.length;
+            els.finalTotal.textContent = currentQuestions.length;
+            els.body.classList.remove("result-mode");
+            els.resultPanel.classList.remove("is-active");
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = currentQuestions[currentIdx];
+            answered = false;
+
+            els.currentIdx.textContent = currentIdx + 1;
+            els.questionBadge.textContent = currentIdx + 1;
+            els.scoreNow.textContent = score;
+            els.progressFill.style.width = `${((currentIdx + 1) / currentQuestions.length) * 100}%`;
+            els.questionText.textContent = q.q;
+
+            els.hintBtn.disabled = false;
+            els.hintText.textContent = "";
+            els.hintText.classList.remove("is-visible");
+
+            els.feedback.className = "feedback";
+            els.feedbackTitle.textContent = "정답 선택";
+            els.feedbackCopy.textContent = "O 또는 X를 눌러주세요.";
+
+            els.nextBtn.disabled = true;
+            els.nextBtn.textContent = currentIdx === currentQuestions.length - 1 ? "결과 보기" : "다음 문제";
+
+            [els.btnTrue, els.btnFalse].forEach((btn) => {
+                btn.disabled = false;
+                btn.classList.remove("correct", "wrong", "reveal");
+            });
+        }
+
+        function showHint() {
+            const q = currentQuestions[currentIdx];
+            els.hintBtn.disabled = true;
+            els.hintText.textContent = q.hint;
+            els.hintText.classList.add("is-visible");
+        }
+
+        function checkAnswer(userAnswer) {
+            if (answered) return;
+
+            const q = currentQuestions[currentIdx];
+            const selectedBtn = userAnswer ? els.btnTrue : els.btnFalse;
+            const correctBtn = q.ans ? els.btnTrue : els.btnFalse;
+            const isCorrect = userAnswer === q.ans;
+
+            answered = true;
+            [els.btnTrue, els.btnFalse].forEach((btn) => {
+                btn.disabled = true;
+                btn.classList.remove("correct", "wrong", "reveal");
+            });
+
+            if (isCorrect) {
+                score += 1;
+                selectedBtn.classList.add("correct");
+                els.feedback.className = "feedback correct";
+                els.feedbackTitle.textContent = "정답입니다";
+            } else {
+                selectedBtn.classList.add("wrong");
+                correctBtn.classList.add("reveal");
+                els.feedback.className = "feedback wrong";
+                els.feedbackTitle.textContent = "오답입니다";
+            }
+
+            els.scoreNow.textContent = score;
+            els.feedbackCopy.textContent = q.exp;
+            els.nextBtn.disabled = false;
+        }
+
+        function goNext() {
+            if (!answered) return;
+            currentIdx += 1;
+
+            if (currentIdx >= currentQuestions.length) {
+                showResult();
+                return;
+            }
+
+            loadQuestion();
+        }
+
+        function showResult() {
+            els.body.classList.add("result-mode");
+            els.resultPanel.classList.add("is-active");
+            els.finalScore.textContent = score;
+
+            if (score === currentQuestions.length) {
+                els.resultComment.textContent = "나비픽스 전문가 마스터";
+            } else if (score >= 3) {
+                els.resultComment.textContent = "거의 다 맞히셨습니다";
+            } else {
+                els.resultComment.textContent = "제품 정보를 한 번 더 확인해 보세요";
+            }
+        }
+
+        async function toggleFullscreen() {
+            try {
+                if (!document.fullscreenElement) {
+                    await document.documentElement.requestFullscreen();
+                } else {
+                    await document.exitFullscreen();
+                }
+            } catch (error) {
+                els.fullscreenBtn.textContent = "전체화면";
+            }
+        }
+
+        function updateFullscreenLabel() {
+            els.fullscreenBtn.textContent = document.fullscreenElement ? "화면복귀" : "전체화면";
+        }
+
+        els.hintBtn.addEventListener("click", showHint);
+        els.btnTrue.addEventListener("click", () => checkAnswer(true));
+        els.btnFalse.addEventListener("click", () => checkAnswer(false));
+        els.nextBtn.addEventListener("click", goNext);
+        els.resetBtn.addEventListener("click", () => startQuiz(false));
+        els.retryBtn.addEventListener("click", () => startQuiz(false));
+        els.sameBtn.addEventListener("click", () => startQuiz(true));
+        els.fullscreenBtn.addEventListener("click", toggleFullscreen);
+        document.addEventListener("fullscreenchange", updateFullscreenLabel);
+
+        startQuiz(false);
+    </script>
+</body>
+</html>
